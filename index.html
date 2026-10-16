@@ -93,7 +93,9 @@ section{padding:clamp(72px,10vw,120px) 0}
 h2{font:700 clamp(28px,3.6vw,40px)/1.3 var(--sans);margin:0 0 14px;letter-spacing:-.02em}
 .sub{color:var(--dim);max-width:60ch;margin:0 0 48px}
 .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-.mode figure{margin:0 0 18px;border-radius:26px;overflow:hidden;border:1px solid var(--line);background:var(--deep)}
+.mode figure{margin:0 0 18px;border-radius:26px;overflow:hidden;border:1px solid var(--line);background:var(--deep);aspect-ratio:4/5}
+/* 휴대폰 화면 전체 대신 핵심 장면만 4:5 로 잘라 보여 준다. */
+.mode figure img{width:100%;height:100%;object-fit:cover;object-position:50% var(--focus,50%)}
 .mode h3{font:700 21px/1.4 var(--sans);margin:0 0 6px}
 .mode p{margin:0;color:var(--dim);font-size:16px}
 
@@ -181,17 +183,17 @@ footer p{margin:0;max-width:62ch}
       <p class="sub">앱에서는 마이크로 말해서 터뜨려요. 마이크가 없어도 키보드로 모든 급수를 즐길 수 있어요.</p>
       <div class="modes">
         <article class="mode">
-          <figure><img src="assets/02_game.webp" alt="한자 빗방울이 떨어지고 정답을 말한 빗방울이 터지는 게임 화면" loading="lazy" width="640" height="1391"></figure>
+          <figure><img style="--focus:46%" src="assets/02_game.webp" alt="한자 빗방울이 떨어지고 정답을 말한 빗방울이 터지는 게임 화면" loading="lazy" width="640" height="1391"></figure>
           <h3>말하기</h3>
           <p>山을 보면 "산" 또는 "메 산". 여러 개를 이어서 말해도 알아들어요.</p>
         </article>
         <article class="mode">
-          <figure><img src="assets/03_write.webp" alt="훈음을 보고 한자를 직접 써 보는 쓰기 모드 화면" loading="lazy" width="640" height="1391"></figure>
+          <figure><img style="--focus:74%" src="assets/03_write.webp" alt="훈음을 보고 한자를 직접 써 보는 쓰기 모드 화면" loading="lazy" width="640" height="1391"></figure>
           <h3>쓰기</h3>
           <p>6급Ⅱ부터는 훈음을 보고 직접 써요. 획순까지 맞으면 점수가 더 올라요.</p>
         </article>
         <article class="mode">
-          <figure><img src="assets/05_result.webp" alt="7급 합격 도장과 별 세 개가 나온 결과 화면" loading="lazy" width="640" height="1391"></figure>
+          <figure><img style="--focus:44%" src="assets/05_result.webp" alt="7급 합격 도장과 별 세 개가 나온 결과 화면" loading="lazy" width="640" height="1391"></figure>
           <h3>합격 도장</h3>
           <p>Lv.10까지 한옥 마을을 지켜 내면 합격 도장을 받아요. 별과 기록이 쌓여요.</p>
         </article>
