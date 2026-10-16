@@ -3,25 +3,330 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>한자톡톡 - 말로 배우는 한자</title>
-<meta name="description" content="한자톡톡은 소리 내어 말하며 한자를 익히는 학습 앱입니다.">
+<title>한자톡톡 · 말하면 터지는 한자 급수 게임</title>
+<meta name="description" content="떨어지는 한자 빗방울의 음을 소리 내어 말하면 톡! 터지는 한자 급수 게임. 8급부터 1급까지 3,500자를 말하고 쓰며 익혀요.">
+<meta property="og:title" content="한자톡톡 · 말하면 터지는 한자 급수 게임">
+<meta property="og:description" content="떨어지는 한자의 음을 말하면 빗방울이 톡! 터져요. 8급부터 1급까지 말하고 쓰며 익히는 한자 학습 게임.">
+<meta property="og:image" content="https://withstep.github.io/assets/icon.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#101D2B">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff;--fg:#1d2a33;--dim:#5b6b76;--accent:#1f7f78;--line:#dfe7ea}
-@media (prefers-color-scheme:dark){:root{--bg:#101d2b;--fg:#e9fff9;--dim:#9fb4bd;--accent:#75e1d2;--line:#24485a}}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 -apple-system,"Noto Sans KR",sans-serif}
-main{max-width:720px;margin:0 auto;padding:48px 16px 56px;text-align:center}
-h1{font-size:2rem;color:var(--accent)}.dim{color:var(--dim);font-size:.9rem}
-a{color:var(--accent)}footer{margin-top:3rem;border-top:1px solid var(--line);padding-top:1rem}
+:root{
+  --night:#101D2B; --deep:#07131E; --card:#193344; --line:rgba(231,244,239,.16);
+  --drop:#75E1D2; --drop-light:#E9FFF9; --drop-deep:#2C9F9A;
+  --gold:#F7C65C; --stamp:#D93A3A; --hanji:#FFF5D8; --ink:#132832;
+  --text:#F7FBF7; --dim:#A9BDC0;
+  --serif:"Noto Serif KR",serif; --display:"Black Han Sans",sans-serif;
+  --sans:"IBM Plex Sans KR",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;word-break:keep-all;overflow-wrap:anywhere;background:var(--night);color:var(--text);font:400 17px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img{max-width:100%;display:block}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* ---------- hero: the playable rain ---------- */
+.hero{position:relative;min-height:min(100svh,880px);overflow:hidden;
+  background:radial-gradient(120% 80% at 80% 0%,#1d3a4f 0%,var(--night) 55%,var(--deep) 100%)}
+.moon{position:absolute;right:9%;top:9%;width:88px;height:88px;border-radius:50%;
+  background:radial-gradient(circle at 38% 36%,#fff8df,#f2df9a 60%,#d9c06d);box-shadow:0 0 70px 18px rgba(247,198,92,.18)}
+.roofs{position:absolute;left:0;right:0;bottom:0;height:90px;pointer-events:none;
+  background:linear-gradient(transparent,rgba(7,19,30,.9))}
+.roofs svg{position:absolute;bottom:0;width:100%;height:70px}
+#sky{position:absolute;inset:0;touch-action:manipulation}
+.drop{position:absolute;top:0;left:0;width:86px;height:104px;margin:-52px 0 0 -43px;border:0;padding:0;cursor:pointer;
+  background:none;color:var(--ink);font:900 38px/1 var(--serif);will-change:transform}
+.drop::before{content:"";position:absolute;inset:0;border-radius:50% 50% 50% 50%/62% 62% 40% 40%;
+  clip-path:path("M43 0 C43 0 4 50 4 68 C4 89 21 104 43 104 C65 104 82 89 82 68 C82 50 43 0 43 0Z");
+  background:radial-gradient(circle at 36% 58%,var(--drop-light),var(--drop) 58%,var(--drop-deep));
+  box-shadow:inset 0 -6px 10px rgba(0,0,0,.12)}
+.drop span{position:relative;top:16px}
+.drop small{position:absolute;left:50%;top:100%;transform:translate(-50%,6px);white-space:nowrap;
+  font:500 13px/1 var(--sans);color:var(--text);background:rgba(7,19,30,.72);padding:5px 8px;border-radius:999px;
+  opacity:0;transition:opacity .2s}
+.drop.hinted small{opacity:1}
+.burst{position:absolute;pointer-events:none;transform:translate(-50%,-50%);text-align:center;animation:burst .9s ease-out forwards}
+.burst b{display:block;font:400 30px/1 var(--display);color:var(--gold)}
+.burst span{font:500 15px/1.4 var(--sans);color:var(--text)}
+@keyframes burst{from{opacity:1;transform:translate(-50%,-50%) scale(.8)}to{opacity:0;transform:translate(-50%,-90%) scale(1.15)}}
+
+.hero-copy{position:relative;z-index:2;pointer-events:none;padding:clamp(56px,11vh,120px) 0 220px}
+.hero-copy .wrap>*{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:14px;margin:0 0 18px}
+.brand img{width:56px;height:56px;border-radius:14px}
+.wordmark{font:400 clamp(64px,11vw,132px)/.9 var(--display);margin:0;letter-spacing:-.01em;
+  text-shadow:0 6px 30px rgba(7,19,30,.6)}
+.lede{max-width:30ch;font-size:clamp(19px,2.2vw,23px);line-height:1.55;margin:22px 0 30px;color:#DCE8E6}
+.stores{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.store{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:14px;text-decoration:none;
+  font:700 16px/1.2 var(--sans);background:var(--text);color:var(--ink)}
+.store svg{width:22px;height:22px}
+.store small{display:block;font-weight:500;font-size:12px;opacity:.7}
+.store.soon{background:transparent;color:var(--dim);border:1px solid var(--line);cursor:default}
+
+.try{position:absolute;z-index:3;left:50%;bottom:28px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));
+  display:flex;gap:10px;align-items:center;padding:10px 10px 10px 18px;border-radius:18px;
+  background:rgba(7,19,30,.78);border:1px solid var(--line);backdrop-filter:blur(8px)}
+.try label{flex:none;font-size:14px;color:var(--dim)}
+.try input{flex:1;min-width:0;border:0;border-radius:12px;padding:12px 14px;font:500 18px var(--sans);
+  background:#0d2433;color:var(--text)}
+.try input::placeholder{color:#6f8a90}
+.score{flex:none;font:400 22px/1 var(--display);color:var(--gold);min-width:56px;text-align:right}
+
+/* ---------- ways to learn ---------- */
+section{padding:clamp(72px,10vw,120px) 0}
+h2{font:700 clamp(28px,3.6vw,40px)/1.3 var(--sans);margin:0 0 14px;letter-spacing:-.02em}
+.sub{color:var(--dim);max-width:60ch;margin:0 0 48px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.mode figure{margin:0 0 18px;border-radius:26px;overflow:hidden;border:1px solid var(--line);background:var(--deep)}
+.mode h3{font:700 21px/1.4 var(--sans);margin:0 0 6px}
+.mode p{margin:0;color:var(--dim);font-size:16px}
+
+/* ---------- grade ladder on hanji ---------- */
+.ladder{background:var(--hanji);color:var(--ink)}
+.ladder .sub{color:#4e6066}
+.steps{list-style:none;margin:0;padding:0;display:flex;align-items:flex-end;gap:8px;min-height:340px}
+.steps li{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px}
+.steps .bar{width:100%;border-radius:10px 10px 4px 4px;background:var(--ink);position:relative}
+.steps .bar::after{content:attr(data-n);position:absolute;left:0;right:0;top:-24px;text-align:center;
+  font:500 12px/1 var(--sans);color:#4e6066}
+.steps b{font:400 clamp(13px,1.6vw,18px)/1 var(--display);white-space:nowrap}
+.steps li:first-child .bar{background:var(--stamp)}
+.ladder-note{margin:40px 0 0;display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+.stamp{flex:none;width:112px;height:112px;border-radius:50%;border:5px solid var(--stamp);color:var(--stamp);
+  display:grid;place-items:center;font:900 34px/1 var(--serif);transform:rotate(-12deg)}
+.ladder-note p{margin:0;max-width:52ch}
+
+/* ---------- details ---------- */
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 48px}
+.facts div{border-top:1px solid var(--line);padding-top:18px}
+.facts h3{font:700 18px/1.4 var(--sans);margin:0 0 6px}
+.facts p{margin:0;color:var(--dim);font-size:16px}
+
+.cta{text-align:center}
+.cta img{width:120px;margin:0 auto 18px}
+.cta .stores{justify-content:center}
+
+footer{border-top:1px solid var(--line);padding:36px 0 48px;color:var(--dim);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+footer nav{display:flex;gap:20px}
+footer p{margin:0;max-width:62ch}
+
+@media (max-width:820px){
+  .modes{grid-template-columns:1fr;max-width:420px}
+  .facts{grid-template-columns:1fr}
+  .steps{gap:4px;min-height:260px}
+  .steps .bar::after{display:none}
+  .steps b{writing-mode:vertical-rl;letter-spacing:.05em;height:3.4em}
+  .moon{width:48px;height:48px;top:3%;right:6%}
+  .hero-copy{padding-bottom:240px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .burst{animation-duration:.01s}
+}
 </style>
 </head>
 <body>
+
+<header class="hero">
+  <div class="moon" aria-hidden="true"></div>
+  <div id="sky" aria-label="떨어지는 한자 빗방울. 빗방울을 누르거나 아래 칸에 음을 입력하면 터집니다."></div>
+  <div class="roofs" aria-hidden="true">
+    <svg viewBox="0 0 1200 70" preserveAspectRatio="none"><path fill="#07131E" d="M0 70V48h40l30-20h80l30 20h60l30-22h96l30 22h70l28-18h88l28 18h64l32-24h104l32 24h66l30-20h86l30 20h56l30-22h92l30 22h40v22z"/></svg>
+  </div>
+  <div class="hero-copy">
+    <div class="wrap">
+      <p class="brand"><img src="assets/icon.png" alt="" width="56" height="56"> 말하면 터지는 한자 급수 게임</p>
+      <h1 class="wordmark">한자톡톡</h1>
+      <p class="lede">하늘에서 한자가 빗방울처럼 떨어져요. 음을 소리 내어 말하면 톡! 터져요.</p>
+      <div class="stores">
+        <a class="store" href="https://apps.apple.com/kr/app/id6821830683">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-3.9zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>
+          <span><small>다운로드</small>App Store</span>
+        </a>
+        <span class="store soon" aria-label="Google Play 출시 준비 중">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.6 2.2 13.5 12l-9.9 9.8c-.4-.2-.6-.6-.6-1.1V3.3c0-.5.2-.9.6-1.1zm11 10.9 2.6 2.6-11.5 6.5 8.9-9.1zm0-2.2L5.7 1.8l11.5 6.5-2.6 2.6zm3.6-1.8 2.7 1.5c.8.5.8 1.6 0 2.1l-2.7 1.5-2.8-2.8 2.8-2.3z"/></svg>
+          <span><small>곧 만나요</small>Google Play</span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <form class="try" id="try" autocomplete="off">
+    <label for="answer">음을 입력해 보세요</label>
+    <input id="answer" name="answer" inputmode="text" placeholder="예: 산, 메 산" enterkeyhint="go">
+    <output class="score" id="score" aria-live="polite">0</output>
+  </form>
+</header>
+
 <main>
-<h1>한자톡톡</h1>
-<p>소리 내어 말하며 한자를 익히는 학습 앱입니다.<br>급수별 한자를 보고 훈음을 말하면, 앱이 듣고 알려줘요.</p>
-<footer>
-<p><a href="privacy/">개인정보처리방침</a></p>
-<p class="dim">&copy; WITHSTEP</p>
-</footer>
+  <section>
+    <div class="wrap">
+      <h2>말하고, 쓰고, 눌러서 익혀요</h2>
+      <p class="sub">앱에서는 마이크로 말해서 터뜨려요. 마이크가 없어도 키보드로 모든 급수를 즐길 수 있어요.</p>
+      <div class="modes">
+        <article class="mode">
+          <figure><img src="assets/02_game.webp" alt="한자 빗방울이 떨어지고 정답을 말한 빗방울이 터지는 게임 화면" loading="lazy" width="640" height="1391"></figure>
+          <h3>말하기</h3>
+          <p>山을 보면 "산" 또는 "메 산". 여러 개를 이어서 말해도 알아들어요.</p>
+        </article>
+        <article class="mode">
+          <figure><img src="assets/03_write.webp" alt="훈음을 보고 한자를 직접 써 보는 쓰기 모드 화면" loading="lazy" width="640" height="1391"></figure>
+          <h3>쓰기</h3>
+          <p>6급Ⅱ부터는 훈음을 보고 직접 써요. 획순까지 맞으면 점수가 더 올라요.</p>
+        </article>
+        <article class="mode">
+          <figure><img src="assets/05_result.webp" alt="7급 합격 도장과 별 세 개가 나온 결과 화면" loading="lazy" width="640" height="1391"></figure>
+          <h3>합격 도장</h3>
+          <p>Lv.10까지 한옥 마을을 지켜 내면 합격 도장을 받아요. 별과 기록이 쌓여요.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="ladder">
+    <div class="wrap">
+      <h2>8급부터 1급까지 3,500자</h2>
+      <p class="sub">13개 급수의 배정한자를 급수별로 게임으로 반복해요. 위 급수에서는 아래 급수 한자가 복습으로 섞여 나와요.</p>
+      <ol class="steps" id="steps" aria-label="급수별 누적 한자 수"></ol>
+      <div class="ladder-note">
+        <div class="stamp" aria-hidden="true">合格</div>
+        <p>처음이라면 8급 50자부터 시작해 보세요. 시작하기 전에 그 급수의 한자와 훈음을 한눈에 미리 볼 수 있어요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>알아 두세요</h2>
+      <div class="facts">
+        <div><h3>로그인 없이 바로</h3><p>회원가입이 없어요. 학습 기록은 기기 안에만 저장돼요.</p></div>
+        <div><h3>목소리는 저장하지 않아요</h3><p>마이크는 말하기 모드에서만 쓰고, 녹음하거나 보관하지 않아요.</p></div>
+        <div><h3>광고는 원할 때만</h3><p>이어서 하기와 쓰기 힌트를 받을 때만 보상형 광고가 나와요. 게임 도중 저절로 뜨는 광고는 없어요.</p></div>
+        <div><h3>초등학생부터 어른까지</h3><p>급수 시험을 준비하는 학생도, 한자를 다시 익히고 싶은 어른도 즐길 수 있어요.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <img src="assets/mascot.png" alt="한자톡톡 마스코트 톡톡이" width="120">
+      <h2>오늘은 8급 50자부터</h2>
+      <p class="sub" style="margin:0 auto 30px">빗방울 하나에 한 글자씩, 소리 내어 터뜨려 보세요.</p>
+      <div class="stores">
+        <a class="store" href="https://apps.apple.com/kr/app/id6821830683"><span><small>다운로드</small>App Store</span></a>
+        <span class="store soon"><span><small>곧 만나요</small>Google Play</span></span>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 WITHSTEP. 배정한자는 사단법인 한국어문회 급수 배정표를 기준으로 했으며, 이 앱은 한국어문회와 관련이 없습니다.</p>
+    <nav><a href="privacy/">개인정보처리방침</a><a href="mailto:b_nine@withstep.co.kr">문의</a></nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const H = [["校","학교","교"],["敎","가르칠","교"],["九","아홉","구"],["國","나라","국"],["軍","군사","군"],["金","쇠","금"],["南","남녘","남"],["女","계집","녀"],["年","해","년"],["大","큰","대"],["東","동녘","동"],["六","여섯","륙"],["萬","일만","만"],["母","어미","모"],["木","나무","목"],["門","문","문"],["民","백성","민"],["白","흰","백"],["父","아비","부"],["北","북녘","북"],["四","넉","사"],["山","메","산"],["三","석","삼"],["生","날","생"],["西","서녘","서"],["先","먼저","선"],["小","작을","소"],["水","물","수"],["室","집","실"],["十","열","십"],["五","다섯","오"],["王","임금","왕"],["外","바깥","외"],["月","달","월"],["二","두","이"],["人","사람","인"],["一","한","일"],["日","날","일"],["長","긴","장"],["弟","아우","제"],["中","가운데","중"],["靑","푸를","청"],["寸","마디","촌"],["七","일곱","칠"],["土","흙","토"],["八","여덟","팔"],["學","배울","학"],["韓","한국","한"],["兄","형","형"],["火","불","화"]];
+  // 두음법칙: 녀→여, 륙→육 도 정답으로 받는다.
+  const alt = {"녀":"여","륙":"육"};
+  const sky = document.getElementById('sky');
+  const scoreEl = document.getElementById('score');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let drops = [], score = 0, last = 0, spawnAt = 0;
+
+  const size = () => ({w: sky.clientWidth || innerWidth, h: sky.clientHeight || innerHeight});
+  function spawn(y) {
+    const {w} = size();
+    // 넓은 화면에서는 제목과 겹치지 않게 오른쪽 하늘에만 내린다.
+    const left = w > 820 ? w * 0.5 : 0;
+    const used = new Set(drops.map(d => d.c[0]));
+    const pool = H.filter(c => !used.has(c[0]));
+    const c = pool[Math.floor(Math.random() * pool.length)];
+    const el = document.createElement('button');
+    el.type = 'button'; el.className = 'drop';
+    el.innerHTML = `<span>${c[0]}</span><small>${c[1]} ${c[2]}</small>`;
+    el.setAttribute('aria-label', `${c[0]} 빗방울, 누르면 터집니다`);
+    // 위쪽에 있는 빗방울과 겹치지 않는 자리를 몇 번 골라 본다.
+    const pick = () => left + 60 + Math.random() * Math.max(40, w - left - 120);
+    let x = pick();
+    for (let i = 0; i < 8 && drops.some(o => o.y < y + 160 && Math.abs(o.x - x) < 96); i++) x = pick();
+    const d = {c, el, x, y, v: 30 + Math.random() * 8};
+    el.addEventListener('click', () => pop(d, true));
+    sky.appendChild(el); drops.push(d); place(d);
+  }
+  const place = d => d.el.style.transform = `translate(${d.x}px,${d.y}px)`;
+  function pop(d, tapped) {
+    drops = drops.filter(x => x !== d);
+    const b = document.createElement('div');
+    b.className = 'burst';
+    b.style.left = d.x + 'px'; b.style.top = d.y + 'px';
+    b.innerHTML = tapped ? `<span>${d.c[1]} ${d.c[2]}</span>` : `<b>+10</b><span>${d.c[1]} ${d.c[2]}</span>`;
+    sky.appendChild(b); setTimeout(() => b.remove(), 900);
+    d.el.remove();
+    if (!tapped) { score += 10; scoreEl.value = score; }
+  }
+  function frame(t) {
+    const dt = Math.min(.05, (t - last) / 1000 || 0); last = t;
+    const {h} = size();
+    // 좁은 화면에서는 제목·버튼 아래부터 내려서 글자를 가리지 않게 한다.
+    const narrow = sky.clientWidth <= 820;
+    const top = narrow ? document.querySelector('.hero .stores').getBoundingClientRect().bottom
+                         - sky.getBoundingClientRect().top + 70 : -60;
+    if (t > spawnAt && drops.length < (narrow ? 4 : 7)) { spawn(top); spawnAt = t + 1300 + Math.random() * 900; }
+    for (const d of [...drops]) {
+      d.y += d.v * dt;
+      d.el.classList.toggle('hinted', d.y > h * .45);
+      if (d.y > h - 90) { d.el.remove(); drops = drops.filter(x => x !== d); }
+      else place(d);
+    }
+    requestAnimationFrame(frame);
+  }
+  if (reduce) {
+    const {h} = size();
+    for (let i = 0; i < 6; i++) spawn(120 + (i % 3) * (h - 300) / 3);
+    drops.forEach(d => d.el.classList.add('hinted'));
+  } else {
+    requestAnimationFrame(frame);
+  }
+
+  document.getElementById('try').addEventListener('submit', e => {
+    e.preventDefault();
+    const input = e.target.answer;
+    const words = input.value.trim().split(/[\s,]+/).filter(Boolean);
+    if (!words.length) return;
+    let hit = false;
+    for (const d of [...drops]) {
+      const [, hun, eum] = d.c;
+      const ok = words.some(w => w === eum || w === alt[eum] || w === hun + eum) ||
+                 input.value.replace(/\s+/g, '').includes(hun + eum);
+      if (ok) { pop(d, false); hit = true; }
+    }
+    input.value = '';
+    if (!hit) { input.placeholder = '떨어지는 한자의 음을 적어 보세요'; }
+    if (reduce && drops.length < 4) spawn(140 + Math.random() * 200);
+  });
+
+  // 급수 계단: 누적 한자 수
+  const G = [["8급",50],["7급Ⅱ",100],["7급",150],["6급Ⅱ",225],["6급",300],["5급Ⅱ",400],["5급",500],["4급Ⅱ",750],["4급",1000],["3급Ⅱ",1500],["3급",1817],["2급",2355],["1급",3500]];
+  const steps = document.getElementById('steps');
+  for (const [name, n] of G) {
+    const li = document.createElement('li');
+    const pct = 8 + Math.sqrt(n / 3500) * 92;
+    li.innerHTML = `<div class="bar" data-n="${n.toLocaleString('ko-KR')}" style="height:${pct * 2.6}px"></div><b>${name}</b>`;
+    li.title = `${name}: 누적 ${n.toLocaleString('ko-KR')}자`;
+    steps.appendChild(li);
+  }
+})();
+</script>
 </body>
 </html>
